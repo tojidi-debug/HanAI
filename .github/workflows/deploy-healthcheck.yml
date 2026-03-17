@@ -27,33 +27,19 @@ jobs:
             "https://tojidi-debug.github.io/HanAI/flow.html"
             "https://tojidi-debug.github.io/HanAI/aihome.html"
           )
-
           FAILED=""
           for url in "${pages[@]}"; do
             status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-            echo "$url → HTTP $status"
+            echo "$url HTTP $status"
             if [ "$status" != "200" ]; then
-              FAILED="$FAILED\n- $url (HTTP $status)"
+              FAILED="$FAILED $url(HTTP $status)"
             fi
           done
-
           if [ -n "$FAILED" ]; then
             gh issue create \
-              --title "🚨 배포 오류 감지 $(date '+%Y-%m-%d %H:%M')" \
-              --body "$(printf '아래 페이지에서 문제가 감지됐습니다:\n'"$FAILED")" \
-              --label "bug"
-            echo "❌ 오류 페이지 발견 → Issue 생성됨"
+              --title "배포 오류 감지 $(date '+%Y-%m-%d %H:%M')" \
+              --body "오류 페이지: $FAILED"
+            echo "오류 페이지 발견"
           else
-            echo "✅ 모든 페이지 정상"
+            echo "모든 페이지 정상"
           fi
-```
-
----
-
-## 수정 후 테스트
-```
-Actions 탭
-→ "Gemini 금융규정 모니터링"
-→ "Run workflow"
-→ 1~2분 대기
-→ Issues 탭 확인!
