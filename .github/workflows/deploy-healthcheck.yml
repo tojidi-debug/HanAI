@@ -1,0 +1,57 @@
+name: 배포 후 페이지 헬스체크
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: GitHub Pages 배포 대기
+        run: sleep 60
+
+      - name: 주요 페이지 상태 확인
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pages=(
+            "https://tojidi-debug.github.io/"
+            "https://tojidi-debug.github.io/admin.html"
+            "https://tojidi-debug.github.io/flow.html"
+            "https://tojidi-debug.github.io/aihome.html"
+          )
+
+          FAILED=""
+          for url in "${pages[@]}"; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+            echo "$url → HTTP $status"
+            if [ "$status" != "200" ]; then
+              FAILED="$FAILED\n- $url (HTTP $status)"
+            fi
+          done
+
+          if [ -n "$FAILED" ]; then
+            gh issue create \
+              --title "🚨 배포 오류 감지 $(date '+%Y-%m-%d %H:%M')" \
+              --body "$(printf '아래 페이지에서 문제가 감지됐습니다:\n'"$FAILED")" \
+              --label "bug"
+            echo "❌ 오류 페이지 발견 → Issue 생성됨"
+          else
+            echo "✅ 모든 페이지 정상"
+          fi
+```
+
+---
+
+## 붙여넣기 후 순서
+```
+1. 위 코드 전체 복사
+2. GitHub 파일 편집창에 붙여넣기
+3. "Commit changes" 클릭
+4. 팝업에서 다시 "Commit changes" 클릭
