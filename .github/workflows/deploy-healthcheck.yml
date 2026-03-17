@@ -3,6 +3,7 @@ name: 배포 후 페이지 헬스체크
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   verify:
@@ -14,17 +15,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: GitHub Pages 배포 대기
-        run: sleep 60
+        run: sleep 90
 
       - name: 주요 페이지 상태 확인
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pages=(
-            "https://tojidi-debug.github.io/"
-            "https://tojidi-debug.github.io/admin.html"
-            "https://tojidi-debug.github.io/flow.html"
-            "https://tojidi-debug.github.io/aihome.html"
+            "https://tojidi-debug.github.io/HanAI/"
+            "https://tojidi-debug.github.io/HanAI/admin.html"
+            "https://tojidi-debug.github.io/HanAI/flow.html"
+            "https://tojidi-debug.github.io/HanAI/aihome.html"
           )
 
           FAILED=""
@@ -49,9 +50,10 @@ jobs:
 
 ---
 
-## 붙여넣기 후 순서
+## 수정 후 테스트
 ```
-1. 위 코드 전체 복사
-2. GitHub 파일 편집창에 붙여넣기
-3. "Commit changes" 클릭
-4. 팝업에서 다시 "Commit changes" 클릭
+Actions 탭
+→ "Gemini 금융규정 모니터링"
+→ "Run workflow"
+→ 1~2분 대기
+→ Issues 탭 확인!
