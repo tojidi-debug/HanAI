@@ -33,11 +33,10 @@ jobs:
           to: ${{ secrets.NOTIFY_EMAIL }}
           from: HanAI 금융규정 모니터링
           subject: "[주간브리핑] 금융규정 변경사항이 업데이트되었습니다"
-          content_type: text/html
-          body: |
+          html_body: |
             <html>
-            <body style="font-family: Arial, sans-serif; padding: 20px;">
-              <h2 style="color: #2c3e50;">주간 금융규정 브리핑 알림</h2>
+            <body style="font-family:Arial,sans-serif;padding:20px;">
+              <h2 style="color:#2c3e50;">주간 금융규정 브리핑 알림</h2>
               <p>안녕하세요,</p>
               <p>이번 주 금융규정 변경사항 브리핑이 생성되었습니다.</p>
               <br>
@@ -49,6 +48,16 @@ jobs:
               <p style="color:#888;font-size:12px;">본 메일은 GitHub Actions에 의해 자동 발송되었습니다.</p>
             </body>
             </html>
+```
+
+---
+
+## 순서
+```
+① 앱 비밀번호 재발급 (16자리)
+② GMAIL_APP_PASSWORD Secret 업데이트
+③ YAML 파일 수정 (content_type → html_body)
+④ Run workflow 재실행
 
       - name: GitHub 알림 생성
         run: |
