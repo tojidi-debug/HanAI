@@ -18,7 +18,79 @@ jobs:
         run: pip install google-generativeai
 
       - name: Gemini API 호출 및 Issue 생성
+        id: create_issue
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python3 scripts/gemini_report.py
+        run: |
+          python3 scripts/gemini_report.py
+          echo "issue_url=https://github.com/tojidi-debug/HanAI/issues" >> $GITHUB_OUTPUT
+
+      - name: 이메일 알림 발송
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.GMAIL_ADDRESS }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          to: ${{ secrets.NOTIFY_EMAIL }}
+          from: "HanAI 금융규정 모니터링 <${{ secrets.GMAIL_ADDRESS }}>"
+          subject: "[주간브리핑] 금융규정 변경사항이 업데이트되었습니다"
+          content_type: text/html
+          body: |
+            <html>
+            <body style="font-family: Arial, sans-serif; padding: 20px;">
+              <h2 style="color: #2c3e50;">📋 주간 금융규정 브리핑 알림</h2>
+              <p>안녕하세요,</p>
+              <p>이번 주 <strong>금융규정 변경사항 브리핑</strong>이 생성되었습니다.</p>
+              <br>
+              <a href="https://github.com/tojidi-debug/HanAI/issues"
+                style="background-color: #3498db;
+                       color: white;
+                       padding: 12px 24px;
+                       text-decoration: none;
+                       border-radius: 5px;
+                       font-size: 16px;">
+                📄 브리핑 보러가기
+              </a>
+              <br><br>
+              <p style="color: #888; font-size: 12px;">
+                본 메일은 GitHub Actions에 의해 자동 발송되었습니다.
+              </p>
+            </body>
+            </html>
+
+      - name: GitHub 알림 생성
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "::notice title=주간브리핑 생성 완료::금융규정 변경사항 브리핑이 생성되었습니다. Issues 탭을 확인하세요!"
+```
+
+---
+
+## Gmail 앱 비밀번호 발급 방법
+```
+1. myaccount.google.com 접속
+2. 보안 탭 클릭
+3. 2단계 인증 활성화 (없으면 먼저 설정!)
+4. 검색창에 "앱 비밀번호" 입력
+5. 앱: 메일 / 기기: Windows 컴퓨터
+6. 생성 클릭
+7. xxxx xxxx xxxx xxxx 복사
+   → 공백 제거: xxxxxxxxxxxxxxxx
+   → Secret Value에 붙여넣기
+```
+
+---
+
+## 전체 흐름
+```
+매주 월요일 오전 10시
+        ↓
+Gemini 분석 → Issues 생성
+        ↓
+NOTIFY_EMAIL로 HTML 이메일 발송 📧
+(버튼 클릭하면 Issues 바로 이동)
+        ↓
+GitHub Actions 탭에 알림 표시 🔔
