@@ -13,26 +13,22 @@ model = genai.GenerativeModel("gemini-2.5-pro")
 
 today = str(datetime.date.today())
 
-lines = []
-lines.append("today: " + today)
-lines.append("You are a Korean accounting and financial regulation expert.")
-lines.append("Summarize major changes from the past week in Korean.")
-lines.append("1. K-IFRS revision or interpretation")
-lines.append("2. FSS audit guidelines changes")
-lines.append("3. KICPA announcements")
-lines.append("4. External Audit Act changes")
-lines.append("5. IASB/FASB updates affecting Korea")
-lines.append("6. Construction revenue recognition changes")
-lines.append("7. Real estate presale accounting changes")
-lines.append("8. PF project financing supervision")
-lines.append("9. Construction cost ratio audit issues")
-lines.append("10. Real estate asset revaluation")
-lines.append("11. Recent enforcement actions")
-lines.append("Format: number each item")
-lines.append("Mark urgent items with URGENT")
-lines.append("End with 3 practical notes for accountants.")
-
-prompt = "\n".join(lines)
+prompt = "today: " + today + "\n"
+prompt += "You are a Korean accounting expert.\n"
+prompt += "Summarize changes from the past week in Korean.\n"
+prompt += "1. K-IFRS revision\n"
+prompt += "2. FSS audit guidelines\n"
+prompt += "3. KICPA announcements\n"
+prompt += "4. External Audit Act changes\n"
+prompt += "5. IASB/FASB updates\n"
+prompt += "6. Construction revenue recognition\n"
+prompt += "7. Real estate presale accounting\n"
+prompt += "8. PF project financing\n"
+prompt += "9. Construction cost audit issues\n"
+prompt += "10. Real estate asset revaluation\n"
+prompt += "11. Recent enforcement actions\n"
+prompt += "Mark urgent items with URGENT\n"
+prompt += "End with 3 practical notes.\n"
 
 response = model.generate_content(prompt)
 report = response.text
@@ -45,7 +41,7 @@ result = subprocess.run(
 )
 
 if result.returncode == 0:
-    print("Done:", title)
+    print("Done")
 else:
-    print("Failed:", result.stderr)
+    print(result.stderr)
     sys.exit(1)
