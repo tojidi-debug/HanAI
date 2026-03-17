@@ -9,7 +9,7 @@ if not api_key:
     sys.exit(1)
 
 genai.configure(api_key=api_key)
-model = genai.GenerativeModel("gemini-2.5-pro")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 today = str(datetime.date.today())
 
