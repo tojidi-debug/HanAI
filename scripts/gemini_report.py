@@ -14,40 +14,40 @@ model = genai.GenerativeModel('gemini-2.5-pro')
 
 today = datetime.date.today()
 
-prompt = f"""
-오늘 날짜: {today}
+prompt = """
+오늘 날짜: """ + str(today) + """
 당신은 한국 회계감리 및 금융감독 전문가입니다.
 아래 항목에 대해 최근 1주일 내 주요 변경사항을 한국어로 요약해줘.
 
-[공통 회계·감독 규정]
+[공통 회계 감독 규정]
 1. K-IFRS(한국채택국제회계기준) 개정 또는 해석서 발표
 2. 금융감독원 감리 관련 공시 또는 지침 변경
 3. 한국공인회계사회(KICPA) 주요 공지
-4. 외감법·주기적 지정제 관련 규정 변화
+4. 외감법 주기적 지정제 관련 규정 변화
 5. IASB/FASB 동향 중 국내 영향 있는 것
 
-[건설·부동산 업종 특화]
+[건설 부동산 업종 특화]
 6. 건설업 공사수익 인식 관련 기준 변경
-   (K-IFRS 1115 진행률 산정, 변동대가 등)
+   K-IFRS 1115 진행률 산정, 변동대가 등
 7. 부동산 분양 회계처리 관련 지침 변화
-   (분양수익 인식 시점, 미분양 재고 평가 등)
+   분양수익 인식 시점, 미분양 재고 평가 등
 8. PF(프로젝트 파이낸싱) 관련 금융감독 동향
-9. 건설업 원가율·손실계약 충당부채 감리 이슈
+9. 건설업 원가율 손실계약 충당부채 감리 이슈
 10. 부동산 자산재평가 및 공정가치 측정 관련 사항
-11. 건설·부동산 상장사 최근 감리 조치 사례
-    (과징금, 검찰 고발, 임원 해임 권고 등)
+11. 건설 부동산 상장사 최근 감리 조치 사례
+    과징금, 검찰 고발, 임원 해임 권고 등
 
 [출력 형식]
 - 변경사항 없는 항목: 이번 주 해당 없음
 - 각 항목은 번호와 함께 간결하게 요약
 - 마지막에 실무 적용 시 주의사항 3줄 이내로 요약
-- 심각도 높은 이슈는 앞에 RED 표시
+- 심각도 높은 이슈는 앞에 [긴급] 표시
 """
 
 print("Gemini API 호출 중...")
 response = model.generate_content(prompt)
 report = response.text
-title = f"[주간브리핑] 금융·건설부동산 규정 변경사항 {today}"
+title = "[주간브리핑] 금융 건설부동산 규정 변경사항 " + str(today)
 
 print("GitHub Issue 생성 중...")
 result = subprocess.run([
@@ -65,9 +65,10 @@ else:
 
 ---
 
-## 순서 정리
+## 수정 후
 ```
-1. 파일1 수정 (gemini-finance-monitor.yml)
-2. 파일2 수정 (deploy-healthcheck.yml)
-3. 파일3 새로 생성 (scripts/gemini_report.py)
-4. Actions → Run workflow 테스트!
+Commit changes
+→ Actions 탭
+→ "Gemini 금융규정 모니터링"
+→ "Run workflow"
+→ Issues 탭 확인!
