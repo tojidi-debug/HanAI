@@ -22,6 +22,7 @@ week_num = (last_monday.day - 1) // 7 + 1
 
 date_range = str(last_monday) + " ~ " + str(last_sunday)
 week_label = str(year) + "년 " + str(month) + "월 " + str(week_num) + "주차"
+month_label = str(year) + "년" + str(month) + "월"
 
 prompt = "today: " + today + "\n"
 prompt += "Report period: " + date_range + " (" + week_label + ")\n"
@@ -55,8 +56,19 @@ with open("/tmp/report_title.txt", "w") as f:
 with open("/tmp/report_body.txt", "w") as f:
     f.write(report)
 
+subprocess.run(
+    ["gh", "label", "create", month_label,
+     "--color", "0075ca",
+     "--description", month_label + " 금융규정 브리핑"],
+    capture_output=True,
+    text=True
+)
+
 result = subprocess.run(
-    ["gh", "issue", "create", "--title", title, "--body", report],
+    ["gh", "issue", "create",
+     "--title", title,
+     "--body", report,
+     "--label", month_label],
     capture_output=True,
     text=True
 )
@@ -66,10 +78,3 @@ if result.returncode == 0:
 else:
     print("Failed:", result.stderr)
     sys.exit(1)
-```
-
----
-
-## 📄 파일 2 수정 — gemini-finance-monitor.yml
-```
-github.com/tojidi-debug/HanAI/edit/main/.github/workflows/gemini-finance-monitor.yml
