@@ -16,6 +16,11 @@ if not api_key:
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(script_dir, "config.json")
+with open(config_path, "r", encoding="utf-8") as f:
+    cfg = json.load(f)
+
 date_obj = datetime.date.today()
 today = str(date_obj)
 year = date_obj.year
@@ -26,13 +31,16 @@ last_sunday = last_monday + datetime.timedelta(days=6)
 week_num = (last_monday.day - 1) // 7 + 1
 
 date_range = str(last_monday) + " ~ " + str(last_sunday)
-week_label = str(year) + "년 " + str(month) + "월 " + str(week_num) + "주차"
-month_label = str(year) + "년" + str(month) + "월"
+week_label = (
+    str(year) + cfg["year_suffix"] +
+    str(month) + cfg["month_suffix"] +
+    str(week_num) + cfg["week_label_suffix"]
+)
+month_label = str(year) + cfg["month_label_year"] + str(month) + cfg["month_label_month"]
 
 headers = {"User-Agent": "Mozilla/5.0 (compatible; HanAI-Bot/1.0)"}
 collected = []
 
-# FSS Open API
 try:
     fss_url = (
         "https://www.fss.or.kr/fss/kr/openApi/api/bodoInfo.jsp"
@@ -44,25 +52,22 @@ try:
     res = requests.get(fss_url, headers=headers, timeout=10)
     data = res.json()
     items = data.get("reponse", {}).get("result", [])
-    lines = ["[FSS] " + str(len(items)) + " items found"]
+    lines = ["[FSS] " + str(len(items)) + " items"]
     for item in items[:10]:
         lines.append(
             "title: " + str(item.get("subject", "")) +
             " | date: " + str(item.get("regDate", "")) +
-            " | url: " + str(item.get("originUrl", "")) +
-            " | org: " + str(item.get("publishOrg", ""))
+            " | url: " + str(item.get("originUrl", ""))
         )
     collected.append("\n".join(lines))
 except Exception as e:
-    collected.append("FSS API failed: " + str(e))
+    collected.append("FSS failed: " + str(e))
 
-# FSC RSS feeds
 fsc_feeds = [
     ("FSC-press", "http://www.fsc.go.kr/about/fsc_bbs_rss/?fid=0111"),
     ("FSC-explain", "http://www.fsc.go.kr/about/fsc_bbs_rss/?fid=0112"),
     ("FSC-notice", "http://www.fsc.go.kr/about/fsc_bbs_rss/?fid=0114"),
 ]
-
 for feed_name, feed_url in fsc_feeds:
     try:
         res = requests.get(feed_url, headers=headers, timeout=10)
@@ -85,59 +90,43 @@ for feed_name, feed_url in fsc_feeds:
     except Exception as e:
         collected.append(feed_name + " failed: " + str(e))
 
-# FSC 금융위의결 / 증선위의결
 fsc_pages = [
     ("FSC-committee", "https://www.fsc.go.kr/no020101"),
-    ("FSC-sec-committee", "https://www.fsc.go.kr/no020102"),
+    ("FSC-sec", "https://www.fsc.go.kr/no020102"),
 ]
 for page_name, page_url in fsc_pages:
     try:
         res = requests.get(page_url, headers=headers, timeout=10)
         res.encoding = "utf-8"
-        text = res.text[:3000]
-        collected.append(page_name + " raw:\n" + text)
+        collected.append(page_name + ":\n" + res.text[:2000])
     except Exception as e:
         collected.append(page_name + " failed: " + str(e))
 
 raw_data = "\n\n".join(collected)
+sections = "\n".join(cfg["sections"].values())
+rules = "\n".join(cfg["rules"])
+no_data = cfg["no_data"]
+report_header = cfg["report_header"]
+title_prefix = cfg["title_prefix"]
 
-prompt_lines = [
-    "Today: " + today,
-    "Report period: " + date_range + " (" + week_label + ")",
-    "",
-    "Below is REAL data from official Korean financial regulation websites.",
-    "Write a report ONLY based on this data. Do NOT invent information.",
-    "If no real data exists for a section, write: " + chr(54644) + chr(45817) + " " + chr(44592) + chr(44036) + " " + chr(45236) + " " + chr(48320) + chr(44221) + chr(49324) + chr(54637) + " " + chr(50630) + chr(51020),
-    "",
-    "=== REAL DATA ===",
-    raw_data,
-    "=================",
-    "",
-    "Write Korean report:",
-    "",
-    "## " + week_label + " (" + date_range + ") " + chr(44552) + chr(50928) + chr(44508) + chr(51221) " " + chr(48320) + chr(44221) + chr(49324) + chr(54637) + " " + chr(48270) + chr(47532) + chr(54595) + chr(44536),
-    "",
-    "### 1. K-IFRS " + chr(44060) + chr(51221) + " " + chr(48120) + chr(54644) + chr(49437) + chr(49436),
-    "### 2. FSS " + chr(44048) + chr(47532) + " " + chr(51648) + chr(52840) + " " + chr(48143) " " + chr(44277) + chr(49884),
-    "### 3. FSC " + chr(44552) + chr(50856) + chr(50948) + chr(50896) + chr(54924) + " " + chr(51452) + chr(50836) + " " + chr(48156) + chr(54364),
-    "### 4. FSC " + chr(44552) + chr(50856) + chr(50948) + chr(51032) + chr(44208) + " / " + chr(51613) + chr(49440) + chr(50948) + chr(51032) + chr(44208),
-    "### 5. KICPA " + chr(44277) + chr(51648),
-    "### 6. " + chr(44148) + chr(49444) + " " + chr(48512) + chr(46041) + chr(49328) + " " + chr(44508) + chr(51221) + " " + chr(48320) + chr(44221),
-    "### 7. " + chr(44048) + chr(47532) + " " + chr(51312) + chr(52824) + " " + chr(49324) + chr(47840),
-    "",
-    "Rules:",
-    "Write all content in Korean.",
-    "Use exact dates: org + 'is YYYY MM DD' + announced.",
-    "Only include real URLs from the data above.",
-    "Mark urgent items with [" + chr(44553) + chr(44553) + "]",
-    "End with 3 practical notes for accountants.",
-]
-
-prompt = "\n".join(prompt_lines)
+prompt = (
+    "Today: " + today + "\n"
+    "Report period: " + date_range + " (" + week_label + ")\n\n"
+    "Below is REAL data from official Korean financial regulation websites.\n"
+    "Write report ONLY based on this data. Do NOT invent anything.\n"
+    "If no data for a section, write: " + no_data + "\n\n"
+    "=== REAL DATA ===\n" +
+    raw_data + "\n"
+    "=================\n\n"
+    "Write Korean report with structure:\n\n"
+    "## " + week_label + " (" + date_range + ") " + report_header + "\n\n" +
+    sections + "\n\n"
+    "Rules:\n" + rules
+)
 
 response = model.generate_content(prompt)
 report = response.text
-title = "[" + chr(51452) + chr(44036) + chr(48270) + chr(47532) + chr(54595) + chr(44536) + "] " + week_label + " (" + date_range + ")"
+title = title_prefix + " " + week_label + " (" + date_range + ")"
 
 with open("/tmp/report_title.txt", "w", encoding="utf-8") as f:
     f.write(title)
@@ -165,10 +154,3 @@ if result.returncode == 0:
 else:
     print("Failed:", result.stderr)
     sys.exit(1)
-```
-
----
-
-## 📄 gemini-finance-monitor.yml — FSS_AUTH_KEY 추가
-```
-github.com/tojidi-debug/HanAI/edit/main/.github/workflows/gemini-finance-monitor.yml
