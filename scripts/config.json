@@ -20,12 +20,3 @@
   "r4": "Mark urgent items with [긴급]",
   "r5": "End with section: ### 실무 적용 시 주의사항"
 }
-```
-
-→ Commit changes
-
----
-
-## 📄 파일 2 — gemini_report.py 전체 교체
-```
-github.com/tojidi-debug/HanAI/edit/main/scripts/gemini_report.py
