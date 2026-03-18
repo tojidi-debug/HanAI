@@ -68,15 +68,4 @@ jobs:
       - name: GitHub 알림 생성
         run: |
           echo "::notice title=Brief Ready::Issues tab updated!"
-```
 
----
-
-## 현재 등록된 Secret 목록 확인
-```
-GEMINI_API_KEY    ✅ 등록됨
-GITHUB_TOKEN      ✅ 자동 제공
-GMAIL_ADDRESS     ✅ 등록됨
-GMAIL_APP_PASSWORD ✅ 등록됨
-NOTIFY_EMAIL      ✅ 등록됨
-FSS_AUTH_KEY      ← 아직 없으면 일단 없이 실행 가능!
