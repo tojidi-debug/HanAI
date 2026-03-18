@@ -160,10 +160,3 @@ if result.returncode == 0:
 else:
     print("Failed:", result.stderr)
     sys.exit(1)
-```
-
----
-
-## 📄 파일 3 — gemini-finance-monitor.yml 패키지 수정
-```
-github.com/tojidi-debug/HanAI/edit/main/.github/workflows/gemini-finance-monitor.yml
