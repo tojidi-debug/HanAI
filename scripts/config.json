@@ -7,27 +7,25 @@
   "title_prefix": "[주간브리핑]",
   "month_label_year": "년",
   "month_label_month": "월",
-  "sections": {
-    "s1": "### 1. K-IFRS 개정 및 해석서 (KASB)",
-    "s2": "### 2. 금융감독원(FSS) 감리 지침 및 공시",
-    "s3": "### 3. 금융위원회(FSC) 주요 발표",
-    "s4": "### 4. 금융위원회 의결사항 및 증선위 의결사항",
-    "s5": "### 5. 한국공인회계사회(KICPA) 공지",
-    "s6": "### 6. 건설·부동산 관련 규정 변경",
-    "s7": "### 7. 감리 조치 사례"
-  },
-  "rules": [
-    "Write all content in Korean.",
-    "Use exact dates: 기관명은 YYYY년 MM월 DD일에 [내용]을 발표했습니다.",
-    "Only include real URLs from the data above.",
-    "Mark urgent items with [긴급]",
-    "End with 3 practical notes section: ### 실무 적용 시 주의사항"
-  ]
+  "s1": "### 1. K-IFRS 개정 및 해석서 (KASB)",
+  "s2": "### 2. 금융감독원(FSS) 감리 지침 및 공시",
+  "s3": "### 3. 금융위원회(FSC) 주요 발표",
+  "s4": "### 4. 금융위원회 의결사항 및 증선위 의결사항",
+  "s5": "### 5. 한국공인회계사회(KICPA) 공지",
+  "s6": "### 6. 건설·부동산 관련 규정 변경",
+  "s7": "### 7. 감리 조치 사례",
+  "r1": "Write all content in Korean.",
+  "r2": "Use exact dates: 기관명은 YYYY년 MM월 DD일에 발표했습니다.",
+  "r3": "Only include real URLs from the data above.",
+  "r4": "Mark urgent items with [긴급]",
+  "r5": "End with section: ### 실무 적용 시 주의사항"
 }
 ```
 
+→ Commit changes
+
 ---
 
-### 📄 파일 2 — gemini_report.py 전체 교체
+## 📄 파일 2 — gemini_report.py 전체 교체
 ```
 github.com/tojidi-debug/HanAI/edit/main/scripts/gemini_report.py
