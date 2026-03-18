@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import google.generativeai as genai
 import subprocess
 import datetime
 import os
@@ -7,14 +6,14 @@ import sys
 import requests
 import json
 from xml.etree import ElementTree
+from google import genai
 
 api_key = os.environ.get("GEMINI_API_KEY")
 fss_auth_key = os.environ.get("FSS_AUTH_KEY", "")
 if not api_key:
     sys.exit(1)
 
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel("gemini-2.5-flash")
+client = genai.Client(api_key=api_key)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 config_path = os.path.join(script_dir, "config.json")
@@ -103,30 +102,37 @@ for page_name, page_url in fsc_pages:
         collected.append(page_name + " failed: " + str(e))
 
 raw_data = "\n\n".join(collected)
-sections = "\n".join(cfg["sections"].values())
-rules = "\n".join(cfg["rules"])
-no_data = cfg["no_data"]
-report_header = cfg["report_header"]
-title_prefix = cfg["title_prefix"]
+
+sections = "\n".join([
+    cfg["s1"], cfg["s2"], cfg["s3"], cfg["s4"],
+    cfg["s5"], cfg["s6"], cfg["s7"]
+])
+rules = "\n".join([
+    cfg["r1"], cfg["r2"], cfg["r3"], cfg["r4"], cfg["r5"]
+])
 
 prompt = (
     "Today: " + today + "\n"
     "Report period: " + date_range + " (" + week_label + ")\n\n"
     "Below is REAL data from official Korean financial regulation websites.\n"
     "Write report ONLY based on this data. Do NOT invent anything.\n"
-    "If no data for a section, write: " + no_data + "\n\n"
+    "If no data for a section, write: " + cfg["no_data"] + "\n\n"
     "=== REAL DATA ===\n" +
     raw_data + "\n"
     "=================\n\n"
-    "Write Korean report with structure:\n\n"
-    "## " + week_label + " (" + date_range + ") " + report_header + "\n\n" +
+    "Write Korean report:\n\n"
+    "## " + week_label + " (" + date_range + ") " + cfg["report_header"] + "\n\n" +
     sections + "\n\n"
     "Rules:\n" + rules
 )
 
-response = model.generate_content(prompt)
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=prompt
+)
+
 report = response.text
-title = title_prefix + " " + week_label + " (" + date_range + ")"
+title = cfg["title_prefix"] + " " + week_label + " (" + date_range + ")"
 
 with open("/tmp/report_title.txt", "w", encoding="utf-8") as f:
     f.write(title)
@@ -154,3 +160,10 @@ if result.returncode == 0:
 else:
     print("Failed:", result.stderr)
     sys.exit(1)
+```
+
+---
+
+## 📄 파일 3 — gemini-finance-monitor.yml 패키지 수정
+```
+github.com/tojidi-debug/HanAI/edit/main/.github/workflows/gemini-finance-monitor.yml
