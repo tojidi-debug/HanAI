@@ -49,6 +49,12 @@ response = model.generate_content(prompt)
 report = response.text
 title = "[주간브리핑] " + week_label + " (" + date_range + ") 금융규정 변경사항"
 
+with open("/tmp/report_title.txt", "w") as f:
+    f.write(title)
+
+with open("/tmp/report_body.txt", "w") as f:
+    f.write(report)
+
 result = subprocess.run(
     ["gh", "issue", "create", "--title", title, "--body", report],
     capture_output=True,
@@ -60,4 +66,10 @@ if result.returncode == 0:
 else:
     print("Failed:", result.stderr)
     sys.exit(1)
+```
 
+---
+
+## 📄 파일 2 수정 — gemini-finance-monitor.yml
+```
+github.com/tojidi-debug/HanAI/edit/main/.github/workflows/gemini-finance-monitor.yml
